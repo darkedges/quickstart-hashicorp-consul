@@ -1,0 +1,81 @@
+services:
+  qhcc-consul:
+    container_name: qhcc-consul
+    image: qhcc/consul:1.19.0
+    build: ./docker/consul
+    volumes:
+     - ./docker/consul/config/server.json:/consul/config/server.json
+    ports:
+      - "8500:8500"
+      - "8600:8600/tcp"
+      - "8600:8600/udp"
+    networks:
+      - localdev
+    command: "agent"
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://0.0.0.0:8500/v1/status/leader || exit 1
+      interval: 10s
+      retries: 12
+      start_period: 10s
+      timeout: 10s
+  qhcc-consul-client1:
+    image: qhcc/consul:1.19.0
+    build: ./docker/consul
+    container_name: qhcc-consul-client1
+    volumes:
+     - ./docker/consul/config/client1.json:/consul/config/client.json
+     - ./docker/consul/config/intension-config-entry.json:/intension-config-entry.json
+    networks:
+      - localdev
+    command: "agent"
+    depends_on:
+      qhcc-consul:
+        condition: service_healthy
+      qhcc-countingservice:
+        condition: service_healthy
+  qhcc-consul-client2:
+    image: qhcc/consul:1.19.0
+    build: ./docker/consul
+    container_name: qhcc-consul-client2
+    volumes:
+     - ./docker/consul/config/client2.json:/consul/config/client.json
+    networks:
+      - localdev
+    environment:
+      - COUNTING_SERVICE_URL=http://qhcc-countingservice:5000
+    command: "agent"
+    depends_on:
+      qhcc-consul:
+        condition: service_healthy
+      qhcc-bashboardservice:
+        condition: service_healthy
+  qhcc-countingservice:
+    image: qhcc/countingservice:0.0.3.1
+    build: ./docker/countingservice
+    container_name: qhcc-countingservice
+    networks:
+      - localdev
+    environment:
+      - PORT=5000
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://0.0.0.0:5000/ || exit 1
+      interval: 10s
+      retries: 12
+      start_period: 10s
+      timeout: 10s
+  qhcc-bashboardservice:
+    image: qhcc/bashboardservice:0.0.3.1
+    build: ./docker/bashboardservice
+    container_name: qhcc-bashboardservice
+    networks:
+      - localdev
+    environment:
+      - PORT=5000
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://0.0.0.0:5000/ || exit 1
+      interval: 10s
+      retries: 12
+      start_period: 10s
+      timeout: 10s
+networks:
+  localdev:

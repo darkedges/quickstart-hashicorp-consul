@@ -1,0 +1,26 @@
+{
+    "node_name": "qhcv-consul-client1",
+    "datacenter": "dc1",
+    "data_dir": "/consul/data",
+    "log_level": "INFO",
+    "retry_join": [
+        "qhcc-consul"
+    ],
+    "service": {
+        "name": "counting",
+        "port": 9003,
+        "connect": {
+            "sidecar_service": {}
+        },
+        "check": {
+            "id": "counting-check",
+            "http": "http://qhcc-countingservice:5000/health",
+            "method": "GET",
+            "interval": "1s",
+            "timeout": "1s"
+        }
+    },
+    "ports": {
+        "grpc": 8502
+    }
+}
