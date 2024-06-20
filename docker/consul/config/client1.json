@@ -8,13 +8,13 @@
     ],
     "service": {
         "name": "counting",
-        "port": 9003,
+        "port": 5000,
         "connect": {
             "sidecar_service": {}
         },
         "check": {
             "id": "counting-check",
-            "http": "http://qhcc-countingservice:5000/health",
+            "http": "http://localhost:5000/health",
             "method": "GET",
             "interval": "1s",
             "timeout": "1s"

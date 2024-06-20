@@ -8,7 +8,7 @@
     ],
     "service": {
         "name": "dashboard",
-        "port": 9002,
+        "port": 5001,
         "connect": {
             "sidecar_service": {
                 "proxy": {
@@ -23,7 +23,7 @@
         },
         "check": {
             "id": "dashboard-check",
-            "http": "http://qhcc-bashboardservice:5000/health",
+            "http": "http://localhost:5001/health",
             "method": "GET",
             "interval": "1s",
             "timeout": "1s"
